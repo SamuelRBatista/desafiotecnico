@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  id          String    @id @default(uuid())
+  orderCode   String    @unique @db.VarChar(64)
+  patientName String    @db.VarChar(255)
+  birthDate   DateTime
+  gender      String    @db.VarChar(50)
+  unitCode    String    @db.VarChar(64)
+  integrated  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  exams       Exam[]
+  documents   Document[]
+}
+
+model Exam {
+  id              String            @id @default(uuid())
+  orderId         String
+  itemCode        String            @db.VarChar(64)
+  accessionNumber String            @db.VarChar(128)
+  modality        String            @db.VarChar(64)
+  procedureName   String            @db.VarChar(255)
+  status          String            @db.VarChar(64)
+  createdAt       DateTime          @default(now())
+  order           Order             @relation(fields: [orderId], references: [id])
+  documentLinks   DocumentExamLink[]
+
+  @@unique([orderId, itemCode])
+  @@index([accessionNumber])
+}
+
+model Document {
+  id           String            @id @default(uuid())
+  documentCode String            @db.VarChar(64)
+  orderId      String
+  documentName String            @db.VarChar(255)
+  content      String
+  integrated   Boolean           @default(false)
+  createdAt    DateTime          @default(now())
+  order        Order             @relation(fields: [orderId], references: [id])
+  exams        DocumentExamLink[]
+
+  @@unique([documentCode, orderId])
+}
+
+model DocumentExamLink {
+  id         String   @id @default(uuid())
+  documentId String
+  examId     String
+  createdAt  DateTime @default(now())
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  exam       Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, examId])
+}
+
+model ReceivedExam {
+  id              String   @id @default(uuid())
+  accessionNumber String   @unique @db.VarChar(128)
+  patientName     String   @db.VarChar(255)
+  modality        String   @db.VarChar(64)
+  status          String   @db.VarChar(64)
+  createdAt       DateTime @default(now())
+}
