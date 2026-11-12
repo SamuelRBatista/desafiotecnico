@@ -115,6 +115,22 @@ cadastrado no pedido. Retorna HTTP 404 quando o código não existe.
 - O corpo das requisições usa os nomes do documento técnico; as respostas
   retornam os campos da API em camelCase.
 
+## Dados de demonstração
+
+Para criar dados de exemplo sem duplicá-los ao executar o comando novamente:
+
+```bash
+# Com Docker Compose em execução
+docker compose exec api npm run db:seed
+
+# Ou com a API configurada localmente
+npm run db:seed
+```
+
+O seed cria os pedidos `DEMO-616`, `DEMO-617` e `DEMO-618`. Eles demonstram um
+pedido parcialmente integrado, um pedido ainda pendente e um documento vinculado
+após a chegada do exame. Os registros usam nomes e conteúdos fictícios.
+
 ## Testes
 
 Os testes automatizados usam Jest:
